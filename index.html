@@ -553,8 +553,23 @@
         // Initialize Lucide icons
         lucide.createIcons();
 
+        // ==========================================
+        // YOUR FIREBASE CONFIGURATION
+        // ==========================================
+        // When you set up Firebase, paste your keys inside the quotes below!
+        const myFirebaseConfig = {
+            apiKey: "AIzaSyCjMR21acppPnwajrYaInfCxcQGbAp6stU",
+            authDomain: "georgia-luke-wedding.firebaseapp.com",
+            projectId: "georgia-luke-wedding",
+            storageBucket: "georgia-luke-wedding.firebasestorage.app",
+            messagingSenderId: "172955299029",
+            appId: "1:172955299029:web:83a5ba1fdeb0eff609c65c",
+            measurementId: "G-QVTWWHYB7T"
+        };
+        
+        // This clever bit of code ensures your site works on both GitHub and here in our chat builder!
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'georgia-luke-wedding';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : myFirebaseConfig;
         
         let app, db, auth;
         try {
