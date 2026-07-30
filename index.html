@@ -44,8 +44,9 @@
         }
         
         .hero-bg {
-            background: linear-gradient(135deg, rgba(247, 245, 240, 0.9) 0%, rgba(163, 177, 138, 0.2) 100%), 
-                        url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center/cover no-repeat;
+            /* Looks for the dorfold.jpg file in the same folder as this index.html file */
+            background: linear-gradient(135deg, rgba(247, 245, 240, 0.85) 0%, rgba(163, 177, 138, 0.5) 100%), 
+                        url('dorfold.jpg') center 80%/cover no-repeat;
         }
         
         .section-divider {
@@ -147,7 +148,7 @@
                         <h3 class="font-serif text-2xl text-wedding-sage-dark mb-3">Dorfold Hall</h3>
                         <p class="text-wedding-light-brown mb-6 font-light">Chester Road, Nantwich, CW5 8LD</p>
                         <p class="text-wedding-brown mb-6 leading-relaxed">
-                            We are thrilled to be hosting our wedding at the beautiful Dorfold Hall. Parking is available on-site for those driving, and cars can be left overnight to be collected the next morning.
+                            We are thrilled to be hosting our wedding at the beautiful Dorfold Hall—a RIBA award-winning countryside wedding venue in Cheshire where the contemporary meets the historic. Parking is available on-site for those driving, and cars can be left overnight to be collected the next morning.
                         </p>
                         <a href="https://maps.google.com/?q=Dorfold+Hall+Nantwich" target="_blank" class="inline-flex items-center gap-2 bg-wedding-sage text-white px-6 py-3 rounded-lg hover:bg-wedding-sage-dark transition shadow-md">
                             <i data-lucide="map-pin" class="w-4 h-4"></i> Get Directions
@@ -300,7 +301,7 @@
             
             <div class="space-y-4">
                 <div>
-                    <input type="password" id="admin-password" placeholder="Enter Password (Obi123)" class="w-full px-4 py-3 rounded-lg border border-wedding-sage/50 bg-white focus:outline-none focus:ring-2 focus:ring-wedding-sage focus:border-transparent text-wedding-brown" />
+                    <input type="password" id="admin-password" placeholder="Enter Password" class="w-full px-4 py-3 rounded-lg border border-wedding-sage/50 bg-white focus:outline-none focus:ring-2 focus:ring-wedding-sage focus:border-transparent text-wedding-brown" />
                     <p id="login-error" class="text-red-500 text-sm mt-2 hidden">Incorrect password.</p>
                 </div>
                 <button id="submit-login-btn" class="w-full bg-wedding-sage text-white font-medium py-3 rounded-lg hover:bg-wedding-sage-dark transition shadow-md">
@@ -309,6 +310,94 @@
                 <button id="close-login-btn" class="w-full text-wedding-light-brown text-sm hover:text-wedding-brown transition mt-2">
                     Back to Public Site
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- EDIT GUEST MODAL -->
+    <!-- ========================================== -->
+    <div id="edit-guest-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-wedding-brown/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-wedding-beige p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-wedding-sage/30 transform scale-95 transition-transform duration-300">
+            <h3 class="font-serif text-2xl text-wedding-brown mb-4">Edit Guest</h3>
+            <form id="edit-guest-form" class="space-y-4">
+                <input type="hidden" id="edit-g-id">
+                <div>
+                    <label class="block text-xs text-wedding-light-brown mb-1 uppercase tracking-wide">Name</label>
+                    <input type="text" id="edit-g-name" required class="w-full px-3 py-2 rounded-md border border-wedding-sage/50 focus:outline-none focus:ring-1 focus:ring-wedding-sage text-sm bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-wedding-light-brown mb-1 uppercase tracking-wide">Status</label>
+                    <select id="edit-g-status" class="w-full px-3 py-2 rounded-md border border-wedding-sage/50 focus:outline-none focus:ring-1 focus:ring-wedding-sage text-sm bg-white">
+                        <option value="Pending">Pending</option>
+                        <option value="Attending">Attending</option>
+                        <option value="Declined">Declined</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-wedding-light-brown mb-1 uppercase tracking-wide">Invite Type</label>
+                    <select id="edit-g-invite" class="w-full px-3 py-2 rounded-md border border-wedding-sage/50 focus:outline-none focus:ring-1 focus:ring-wedding-sage text-sm bg-white">
+                        <option value="Day">Day (Ceremony & Meal)</option>
+                        <option value="Evening">Evening Only</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-wedding-light-brown mb-1 uppercase tracking-wide">Dietary/Notes</label>
+                    <input type="text" id="edit-g-notes" class="w-full px-3 py-2 rounded-md border border-wedding-sage/50 focus:outline-none focus:ring-1 focus:ring-wedding-sage text-sm bg-white">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeEditGuest()" class="flex-1 px-4 py-2 rounded-md border border-wedding-sage/50 text-wedding-brown hover:bg-wedding-sage/10 transition text-sm font-medium">Cancel</button>
+                    <button type="submit" class="flex-1 bg-wedding-sage hover:bg-wedding-sage-dark text-white py-2 px-4 rounded-md transition text-sm font-medium">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- PUBLIC RSVP MODAL (TRIGGERED BY QR LINK) -->
+    <!-- ========================================== -->
+    <div id="rsvp-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-wedding-brown/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-wedding-beige p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-wedding-sage/30 transform scale-95 transition-transform duration-300">
+            <div class="text-center mb-6">
+                <i data-lucide="mail-open" class="w-8 h-8 text-wedding-sage-dark mx-auto mb-3"></i>
+                <h3 class="font-serif text-3xl text-wedding-brown" id="rsvp-guest-name">Welcome!</h3>
+                <p class="text-wedding-light-brown text-sm mt-1">Please RSVP for Georgia & Luke's wedding</p>
+            </div>
+            <form id="public-rsvp-form" class="space-y-5">
+                <input type="hidden" id="rsvp-g-id">
+                <div>
+                    <label class="block text-sm font-medium text-wedding-brown mb-2">Will you be attending?</label>
+                    <div class="flex gap-4">
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="rsvp-status" value="Attending" class="peer sr-only" required>
+                            <div class="text-center p-3 rounded-lg border border-wedding-sage/30 peer-checked:bg-wedding-sage peer-checked:text-white peer-checked:border-wedding-sage transition">
+                                Joyfully Accept
+                            </div>
+                        </label>
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="rsvp-status" value="Declined" class="peer sr-only">
+                            <div class="text-center p-3 rounded-lg border border-wedding-sage/30 peer-checked:bg-wedding-brown peer-checked:text-white peer-checked:border-wedding-brown transition">
+                                Regretfully Decline
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-wedding-brown mb-1">Any dietary requirements?</label>
+                    <p class="text-xs text-wedding-light-brown mb-2">Leave blank if none.</p>
+                    <input type="text" id="rsvp-g-notes" placeholder="e.g. Vegetarian, Nut Allergy" class="w-full px-4 py-3 rounded-lg border border-wedding-sage/50 focus:outline-none focus:ring-2 focus:ring-wedding-sage text-sm bg-white">
+                </div>
+                <button type="submit" class="w-full bg-wedding-sage hover:bg-wedding-sage-dark text-white font-medium py-3 rounded-lg transition shadow-md">
+                    Send RSVP
+                </button>
+            </form>
+            <div id="rsvp-success" class="hidden text-center py-6">
+                <div class="inline-block p-3 bg-wedding-sage/20 rounded-full mb-3 text-wedding-sage-dark">
+                    <i data-lucide="check" class="w-6 h-6"></i>
+                </div>
+                <h4 class="font-serif text-2xl text-wedding-brown mb-2">Thank You!</h4>
+                <p class="text-wedding-light-brown">Your RSVP has been saved.</p>
+                <button onclick="closeRsvpModal()" class="mt-6 bg-wedding-beige border border-wedding-sage/50 text-wedding-brown px-6 py-2 rounded-lg hover:bg-wedding-sage/10 transition">Close</button>
             </div>
         </div>
     </div>
@@ -548,7 +637,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Initialize Lucide icons
         lucide.createIcons();
@@ -765,6 +854,85 @@
             if(auth?.currentUser) await deleteDoc(getDocRef('guests', id));
         };
 
+        // Edit Guest Logic
+        const editGuestForm = document.getElementById('edit-guest-form');
+        const editGuestModal = document.getElementById('edit-guest-modal');
+        
+        window.openEditGuest = (id) => {
+            const guest = state.guests.find(g => g.id === id);
+            if (!guest) return;
+            
+            document.getElementById('edit-g-id').value = guest.id;
+            document.getElementById('edit-g-name').value = guest.name;
+            document.getElementById('edit-g-status').value = guest.status;
+            document.getElementById('edit-g-invite').value = guest.inviteType || 'Day';
+            document.getElementById('edit-g-notes').value = guest.notes || '';
+            
+            editGuestModal.classList.remove('hidden');
+            setTimeout(() => {
+                editGuestModal.classList.remove('opacity-0');
+                editGuestModal.children[0].classList.remove('scale-95');
+            }, 10);
+        };
+
+        window.closeEditGuest = () => {
+            editGuestModal.classList.add('opacity-0');
+            editGuestModal.children[0].classList.add('scale-95');
+            setTimeout(() => editGuestModal.classList.add('hidden'), 300);
+        };
+
+        if(editGuestForm) editGuestForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-g-id').value;
+            const name = document.getElementById('edit-g-name').value;
+            const status = document.getElementById('edit-g-status').value;
+            const inviteType = document.getElementById('edit-g-invite').value;
+            const notes = document.getElementById('edit-g-notes').value;
+
+            if(auth?.currentUser) {
+                await updateDoc(getDocRef('guests', id), { name, status, inviteType, notes });
+                closeEditGuest();
+            }
+        });
+
+        // Copy RSVP Link
+        window.copyRsvpLink = (id) => {
+            // Check if domain is custom or github pages, construct the URL cleanly
+            const baseUrl = window.location.origin + window.location.pathname;
+            const rsvpUrl = `${baseUrl}?rsvp=${id}`;
+            
+            // Modern copy to clipboard
+            navigator.clipboard.writeText(rsvpUrl).then(() => {
+                // Show a quick visual confirmation
+                const btn = document.getElementById(`copy-btn-${id}`);
+                const icon = btn.innerHTML;
+                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4 mx-auto text-green-500"></i>`;
+                lucide.createIcons();
+                setTimeout(() => {
+                    btn.innerHTML = icon;
+                    lucide.createIcons();
+                }, 2000);
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement("textarea");
+                textArea.value = rsvpUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const btn = document.getElementById(`copy-btn-${id}`);
+                    const icon = btn.innerHTML;
+                    btn.innerHTML = `<i data-lucide="check" class="w-4 h-4 mx-auto text-green-500"></i>`;
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        btn.innerHTML = icon;
+                        lucide.createIcons();
+                    }, 2000);
+                } catch (err) {}
+                document.body.removeChild(textArea);
+            });
+        };
+
         const budgetForm = document.getElementById('add-budget-form');
         if(budgetForm) budgetForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -964,7 +1132,13 @@
                         <td class="p-4 whitespace-nowrap"><span class="px-2 py-1 rounded-full text-xs font-medium ${statusColor}">${guest.status}</span></td>
                         <td class="p-4 whitespace-nowrap"><span class="px-2 py-1 rounded text-xs font-medium ${inviteColor}">${guest.inviteType || 'Day'}</span></td>
                         <td class="p-4 text-wedding-light-brown truncate max-w-[150px]" title="${guest.notes || ''}">${guest.notes || '-'}</td>
-                        <td class="p-4 text-center">
+                        <td class="p-4 text-center whitespace-nowrap">
+                            <button id="copy-btn-${guest.id}" onclick="copyRsvpLink('${guest.id}')" class="text-wedding-sage-dark hover:text-wedding-sage transition p-2" title="Copy Personalized RSVP Link">
+                                <i data-lucide="link" class="w-4 h-4 mx-auto"></i>
+                            </button>
+                            <button onclick="openEditGuest('${guest.id}')" class="text-blue-400 hover:text-blue-600 transition p-2" title="Edit Guest">
+                                <i data-lucide="edit-2" class="w-4 h-4 mx-auto"></i>
+                            </button>
                             <button onclick="deleteGuest('${guest.id}')" class="text-red-400 hover:text-red-600 transition p-2" title="Remove">
                                 <i data-lucide="trash-2" class="w-4 h-4 mx-auto"></i>
                             </button>
@@ -1188,6 +1362,88 @@
             renderDashboard();
             lucide.createIcons(); // refresh icons for dynamically added HTML
         }
+
+        // ==========================================
+        // PUBLIC RSVP LOGIC (Triggered via QR URL)
+        // ==========================================
+        window.closeRsvpModal = () => {
+            const m = document.getElementById('rsvp-modal');
+            m.classList.add('opacity-0');
+            m.children[0].classList.add('scale-95');
+            setTimeout(() => m.classList.add('hidden'), 300);
+            
+            // Remove the ?rsvp parameter so it doesn't reopen on refresh
+            const url = new URL(window.location);
+            url.searchParams.delete('rsvp');
+            window.history.replaceState({}, '', url);
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const rsvpId = urlParams.get('rsvp');
+            
+            if (rsvpId) {
+                try {
+                    // Sign in anonymously to securely read/write their specific guest record
+                    await signInAnonymously(auth);
+                    
+                    const docRef = getDocRef('guests', rsvpId);
+                    const snap = await getDoc(docRef);
+                    
+                    if (snap.exists()) {
+                        const guest = snap.data();
+                        document.getElementById('rsvp-guest-name').textContent = `Welcome, ${guest.name}!`;
+                        document.getElementById('rsvp-g-id').value = snap.id;
+                        
+                        // Pre-fill existing notes if they already entered some
+                        if(guest.notes) {
+                            document.getElementById('rsvp-g-notes').value = guest.notes;
+                        }
+                        
+                        // Show Modal
+                        const modal = document.getElementById('rsvp-modal');
+                        modal.classList.remove('hidden');
+                        setTimeout(() => {
+                            modal.classList.remove('opacity-0');
+                            modal.children[0].classList.remove('scale-95');
+                        }, 10);
+                    }
+                } catch (e) {
+                    console.error("Error loading RSVP data:", e);
+                }
+            }
+        });
+
+        // Submit RSVP Form
+        const publicRsvpForm = document.getElementById('public-rsvp-form');
+        if (publicRsvpForm) {
+            publicRsvpForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Get selected radio button (Attending vs Declined)
+                const statusRadios = document.getElementsByName('rsvp-status');
+                let status = '';
+                for (let i = 0; i < statusRadios.length; i++) {
+                    if (statusRadios[i].checked) {
+                        status = statusRadios[i].value;
+                        break;
+                    }
+                }
+                
+                const id = document.getElementById('rsvp-g-id').value;
+                const notes = document.getElementById('rsvp-g-notes').value;
+                
+                if (id && status && auth?.currentUser) {
+                    // Update Database directly!
+                    await updateDoc(getDocRef('guests', id), { status: status, notes: notes });
+                    
+                    // Show Success Checkmark UI
+                    document.getElementById('public-rsvp-form').classList.add('hidden');
+                    document.getElementById('rsvp-success').classList.remove('hidden');
+                }
+            });
+        }
+
     </script>
 </body>
 </html>
