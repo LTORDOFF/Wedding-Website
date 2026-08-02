@@ -915,20 +915,39 @@
             }
         });
 
+        // Helper to get a valid URL for QR and Copy Link
+        function getRsvpUrl(id) {
+            let baseUrl = window.location.href.split('?')[0];
+            
+            // If running inside a code preview, the URL might be 'about:srcdoc' or 'null'
+            // Mobile phone cameras cannot understand these, causing the "No usable data" error.
+            if (baseUrl.startsWith('about:') || baseUrl.startsWith('blob:') || baseUrl.startsWith('null')) {
+                // We use a dummy domain here so your phone recognizes it as a valid website.
+                // When you publish the site for real, it will automatically use your real domain!
+                baseUrl = 'https://your-wedding-domain.com/'; 
+            }
+            
+            // Ensure no trailing slash before adding query params
+            if (baseUrl.endsWith('/')) {
+                baseUrl = baseUrl.slice(0, -1);
+            }
+            
+            return `${baseUrl}?rsvp=${id}`;
+        }
+
         // QR Code Logic
         window.showQrModal = (id) => {
             const guest = state.guests.find(g => g.id === id);
             if(!guest) return;
             
-            const baseUrl = window.location.origin + window.location.pathname;
-            const rsvpUrl = `${baseUrl}?rsvp=${id}`;
+            const rsvpUrl = getRsvpUrl(id);
             
             document.getElementById('qr-guest-name').textContent = guest.name;
             document.getElementById('qr-invite-type').textContent = `${guest.inviteType || 'Day'} Invite`;
             
-            // Generate QR Code using free API
+            // Generate QR Code using QuickChart API (highly reliable)
             const qrImg = document.getElementById('qr-code-img');
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(rsvpUrl)}&color=5C4033&bgcolor=FFFFFF`;
+            qrImg.src = `https://quickchart.io/qr?text=${encodeURIComponent(rsvpUrl)}&size=200&dark=5C4033`;
             
             const famText = (guest.familyGroup && guest.familyGroup.trim() !== '') ? ` and their family (${guest.familyGroup})` : '';
             document.getElementById('qr-family-text').textContent = famText;
@@ -950,9 +969,7 @@
 
         // Copy RSVP Link
         window.copyRsvpLink = (id) => {
-            // Check if domain is custom or github pages, construct the URL cleanly
-            const baseUrl = window.location.origin + window.location.pathname;
-            const rsvpUrl = `${baseUrl}?rsvp=${id}`;
+            const rsvpUrl = getRsvpUrl(id);
             
             // Modern copy to clipboard
             navigator.clipboard.writeText(rsvpUrl).then(() => {
