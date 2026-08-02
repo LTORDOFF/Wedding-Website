@@ -573,9 +573,10 @@
                         </div>
 
                         <!-- Right Panel: Interactive Canvas Area -->
+                        <!-- Added zoom styles to the room-canvas class list -->
                         <div id="canvas-container" class="flex-1 bg-white rounded-xl border border-wedding-sage/30 shadow-inner overflow-auto relative admin-scroll h-full cursor-grab active:cursor-grabbing">
                             <!-- The Grid Canvas -->
-                            <div id="room-canvas" class="relative w-[3000px] h-[3000px] bg-[radial-gradient(#cbd5e1_2px,transparent_2px)] [background-size:40px_40px]" ondrop="dropToUnassigned(event)" ondragover="allowDrop(event)">
+                            <div id="room-canvas" class="relative w-[3000px] h-[3000px] bg-[radial-gradient(#cbd5e1_2px,transparent_2px)] [background-size:40px_40px] origin-top-left transition-transform duration-75" ondrop="dropToUnassigned(event)" ondragover="allowDrop(event)">
                                 <!-- Populated by JS -->
                             </div>
                         </div>
@@ -647,6 +648,7 @@
         </div>
     </div>
 
+    <!-- -->
     <!-- Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1016,6 +1018,76 @@
             if(auth?.currentUser) await deleteDoc(getDocRef('ideas', id));
         };
 
+        // ==========================================
+        // PAN AND ZOOM LOGIC FOR SEATING PLAN
+        // ==========================================
+        let currentZoom = 1;
+        let isPanning = false;
+        let panStartX = 0, panStartY = 0;
+        let panStartScrollLeft = 0, panStartScrollTop = 0;
+
+        const canvasContainer = document.getElementById('canvas-container');
+        const roomCanvas = document.getElementById('room-canvas');
+
+        if (canvasContainer && roomCanvas) {
+            // Zooming via Scroll Wheel
+            canvasContainer.addEventListener('wheel', (e) => {
+                // Only zoom if the seating tab is active
+                if (document.getElementById('seating-tab').classList.contains('hidden')) return;
+                
+                e.preventDefault(); // Stop standard scrolling
+                
+                const oldZoom = currentZoom;
+                const zoomSpeed = 0.05;
+                
+                // Determine zoom direction
+                if (e.deltaY < 0) {
+                    currentZoom = Math.min(currentZoom + zoomSpeed, 2.0); // Zoom in, max 200%
+                } else {
+                    currentZoom = Math.max(currentZoom - zoomSpeed, 0.4); // Zoom out, min 40%
+                }
+
+                roomCanvas.style.transform = `scale(${currentZoom})`;
+
+                // Mathematical magic to keep the zoom centered on your mouse cursor
+                const rect = canvasContainer.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                const zoomRatio = currentZoom / oldZoom;
+                canvasContainer.scrollLeft = (canvasContainer.scrollLeft + mouseX) * zoomRatio - mouseX;
+                canvasContainer.scrollTop = (canvasContainer.scrollTop + mouseY) * zoomRatio - mouseY;
+            }, { passive: false });
+
+            // Panning (Drag Canvas empty space)
+            canvasContainer.addEventListener('mousedown', (e) => {
+                // Ensure we only pan when clicking the background, not tables or seats
+                if (e.target === canvasContainer || e.target === roomCanvas) {
+                    isPanning = true;
+                    panStartX = e.clientX;
+                    panStartY = e.clientY;
+                    panStartScrollLeft = canvasContainer.scrollLeft;
+                    panStartScrollTop = canvasContainer.scrollTop;
+                    canvasContainer.style.cursor = 'grabbing';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                e.preventDefault();
+                const dx = e.clientX - panStartX;
+                const dy = e.clientY - panStartY;
+                canvasContainer.scrollLeft = panStartScrollLeft - dx;
+                canvasContainer.scrollTop = panStartScrollTop - dy;
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isPanning) {
+                    isPanning = false;
+                    canvasContainer.style.cursor = 'grab';
+                }
+            });
+        }
 
         let draggedGuestId = null;
 
@@ -1077,8 +1149,9 @@
             
             // Get initial position or default
             const canvasContainer = document.getElementById('canvas-container');
-            initialTableX = table.x ?? (canvasContainer.scrollLeft + 100);
-            initialTableY = table.y ?? (canvasContainer.scrollTop + 100);
+            // Adjust starting grab coordinates to factor in zoom for older tables
+            initialTableX = table.x ?? ((canvasContainer.scrollLeft + 100) / currentZoom);
+            initialTableY = table.y ?? ((canvasContainer.scrollTop + 100) / currentZoom);
             
             dragStartX = e.clientX;
             dragStartY = e.clientY;
@@ -1090,8 +1163,9 @@
         const tableMouseMove = (e) => {
             if(!draggingTableId) return;
             
-            const dx = e.clientX - dragStartX;
-            const dy = e.clientY - dragStartY;
+            // Adjust delta by current zoom level so table movement perfectly matches cursor
+            const dx = (e.clientX - dragStartX) / currentZoom;
+            const dy = (e.clientY - dragStartY) / currentZoom;
             
             const el = document.getElementById(`table-${draggingTableId}`);
             if(el) {
@@ -1105,8 +1179,9 @@
             document.removeEventListener('mouseup', tableMouseUp);
             if(!draggingTableId || !auth?.currentUser) return;
             
-            const dx = e.clientX - dragStartX;
-            const dy = e.clientY - dragStartY;
+            // Adjust delta by current zoom level so drop coordinates are accurate in database
+            const dx = (e.clientX - dragStartX) / currentZoom;
+            const dy = (e.clientY - dragStartY) / currentZoom;
             const finalX = initialTableX + dx;
             const finalY = initialTableY + dy;
             
@@ -1135,10 +1210,10 @@
             const newOrder = state.tables.length > 0 ? Math.max(...state.tables.map(t => t.order || 0)) + 1 : 1;
             const name = type === 'top' ? `Top Table` : `Table ${newOrder}`;
             
-            // Drop it near the center of where the user is currently scrolling
+            // Drop it near the center of where the user is currently scrolling, adjusting for zoom
             const container = document.getElementById('canvas-container');
-            const startX = container ? container.scrollLeft + 150 : 150;
-            const startY = container ? container.scrollTop + 150 : 150;
+            const startX = container ? (container.scrollLeft + 150) / currentZoom : 150;
+            const startY = container ? (container.scrollTop + 150) / currentZoom : 150;
             
             await addDoc(getColRef('tables'), { 
                 name, 
@@ -1163,7 +1238,6 @@
             // Delete table
             await deleteDoc(getDocRef('tables', id));
         };
-
 
         function renderGuests() {
             const tbody = document.getElementById('guest-table-body');
