@@ -62,7 +62,7 @@
             position: relative;
             width: 320px;
             height: 220px;
-            background: theme('colors.env-base');
+            background: #3e2a22; /* Dark chocolate inside */
             box-shadow: 0 20px 40px rgba(92, 64, 51, 0.15);
             margin: 0 auto;
             cursor: pointer;
@@ -76,14 +76,13 @@
         .flap {
             position: absolute;
             top: 0; left: 0;
-            width: 0; height: 0;
-            border-left: 160px solid transparent;
-            border-right: 160px solid transparent;
-            border-top: 130px solid theme('colors.env-flap');
+            width: 100%; height: 145px;
+            background: #654739; /* Chocolate brown flap */
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
             transform-origin: top;
             z-index: 4;
             transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-            filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.05));
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));
         }
         
         .flap.open {
@@ -91,16 +90,30 @@
             z-index: 1; 
         }
 
+        .imprint {
+            position: absolute;
+            top: 70px; /* Centered perfectly on the flap */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #3b281f; /* Darker brown for debossed shadow */
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-style: italic;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.1), -1px -1px 2px rgba(0,0,0,0.6);
+        }
+
         .envelope-front {
             position: absolute;
             bottom: 0; left: 0;
             width: 0; height: 0;
-            border-left: 160px solid theme('colors.env-front');
-            border-right: 160px solid theme('colors.env-front');
-            border-bottom: 110px solid theme('colors.env-dark');
+            border-left: 160px solid #6b4b3b; /* Lighter chocolate left */
+            border-right: 160px solid #4d352a; /* Darker chocolate right */
+            border-bottom: 110px solid #5c4033; /* Base chocolate bottom */
             border-top: 110px solid transparent;
             z-index: 3;
             pointer-events: none;
+            filter: drop-shadow(0px -2px 3px rgba(0,0,0,0.1));
         }
 
         .letter {
@@ -129,30 +142,29 @@
             transform: translateY(-160px);
         }
 
-        .wax-seal {
+        /* Bow Styles (Replaces Ribbon Band) */
+        .ribbon-container {
             position: absolute;
-            top: 130px;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            background-color: theme('colors.wedding-light-brown');
-            border-radius: 50%;
+            inset: 0;
             z-index: 5;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 0 8px rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #F7F5F0;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 22px;
-            font-style: italic;
-            transition: opacity 0.3s;
+            pointer-events: none;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
 
-        .wax-seal.hide {
+        .ribbon-container.hide {
             opacity: 0;
-            pointer-events: none;
+            transform: scale(1.05) translateY(-5px);
+        }
+
+        .realistic-bow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: auto;
+            z-index: 5;
+            filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.4));
         }
 
         /* =========================================
@@ -203,14 +215,20 @@
     <!-- ========================================== -->
     <main id="intro-view" class="w-full">
         <div class="text-center mb-12">
-            <h1 class="font-serif text-3xl md:text-4xl text-wedding-brown mb-2 tracking-wide">You're Invited</h1>
+            <h1 class="font-serif text-3xl md:text-4xl text-wedding-brown mb-2 tracking-wide">Save the Date</h1>
             <p class="text-wedding-light-brown font-light italic">Tap to open</p>
         </div>
 
         <div class="envelope-container" onclick="openEnvelope()">
             <div class="envelope">
-                <div class="flap"></div>
-                <div class="wax-seal">G&L</div>
+                <div class="flap">
+                    <span class="imprint">G&L</span>
+                </div>
+                
+                <div class="ribbon-container">
+                    <img src="image_f25bfc.png" alt="Decorative Bow" class="realistic-bow" onerror="this.style.display='none'">
+                </div>
+
                 <div class="letter">
                     <!-- A peek of the image inside the envelope -->
                     <img src="image_0091de.png" alt="Save the date peek" class="letter-content" onerror="this.style.display='none'">
@@ -226,9 +244,9 @@
     <main id="card-view" class="hidden w-full max-w-lg mx-auto">
         
         <!-- The Save the Date Image -->
-        <div class="bg-white p-2 sm:p-3 shadow-2xl rounded-sm w-full mb-10">
+        <div class="shadow-2xl rounded-sm w-full mb-10 overflow-hidden">
             <!-- IMPORTANT: Make sure image_0091de.png is uploaded to your Github alongside this file! -->
-            <img src="image_0091de.png" alt="Save the Date for Georgia and Luke" class="w-full h-auto object-contain border border-wedding-sage/10">
+            <img src="image_0091de.png" alt="Save the Date for Georgia and Luke" class="w-full h-auto object-contain">
         </div>
 
         <!-- Countdown Timer -->
@@ -283,20 +301,22 @@
 
             const flap = document.querySelector('.flap');
             const letter = document.querySelector('.letter');
-            const seal = document.querySelector('.wax-seal');
+            const ribbon = document.querySelector('.ribbon-container');
             const introView = document.getElementById('intro-view');
             const cardView = document.getElementById('card-view');
 
-            // 1. Break the seal
-            seal.classList.add('hide');
+            // 1. Slip off the ribbon
+            ribbon.classList.add('hide');
             
             // 2. Open flap
-            flap.classList.add('open');
+            setTimeout(() => {
+                flap.classList.add('open');
+            }, 300);
             
             // 3. Pull letter up out of envelope
             setTimeout(() => {
                 letter.classList.add('pull');
-            }, 200);
+            }, 900);
 
             // 4. Fade out envelope view, fade in card view
             setTimeout(() => {
