@@ -90,10 +90,25 @@
             z-index: 1; 
         }
 
+        /* Imprinted G&L on the flap */
+        .flap-imprint {
+            position: absolute;
+            top: 45px; /* Centered higher up in the flap */
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cormorant Garamond', serif;
+            color: #4a3325; /* Darker brown for deboss */
+            font-size: 26px;
+            font-style: italic;
+            font-weight: 600;
+            text-shadow: -1px -1px 1px rgba(0,0,0,0.6), 1px 1px 1px rgba(255,255,255,0.15);
+            pointer-events: none;
+        }
+
         /* Realistic Red Wax Seal Image */
         .wax-seal {
             position: absolute;
-            top: 140px; /* Aligned with the tip of the flap */
+            top: 135px; /* Shifted down to perfectly align the visual center with your exact purple dot */
             left: 50%;
             transform: translate(-50%, -50%);
             width: 100px;
@@ -114,16 +129,6 @@
             opacity: 0;
             transform: translate(-50%, -50%) scale(1.3);
             pointer-events: none;
-        }
-
-        .wax-seal span {
-            font-family: 'Cormorant Garamond', serif;
-            color: #f7e6d2; /* Gold-ish cream tint */
-            font-size: 24px;
-            font-style: italic;
-            font-weight: 600;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5), -1px -1px 1px rgba(255, 255, 255, 0.2);
-            z-index: 2;
         }
 
         .envelope-front {
@@ -244,10 +249,12 @@
 
         <div class="envelope-container" onclick="openEnvelope()">
             <div class="envelope">
-                <div class="flap"></div>
+                <div class="flap">
+                    <div class="flap-imprint">G&L</div>
+                </div>
                 
                 <div class="wax-seal">
-                    <span>G&L</span>
+                    <!-- Text removed from the wax seal -->
                 </div>
 
                 <div class="letter">
@@ -293,13 +300,8 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="w-full flex flex-col sm:flex-row gap-4 pb-8">
-            <button onclick="shareSaveTheDate()" class="flex-1 bg-wedding-sage hover:bg-wedding-sage-dark text-white font-medium py-3.5 px-6 rounded-lg transition shadow-md flex items-center justify-center gap-2 group">
-                <i data-lucide="share" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                <span id="share-btn-text">Share</span>
-            </button>
-
-            <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Georgia+%26+Luke%27s+Wedding&dates=20280519T123000Z/20280520T000000Z&details=Save+the+date+for+our+wedding!+Formal+invitation+to+follow.&location=Dorfold+Hall,+Nantwich" target="_blank" class="flex-1 bg-white border border-wedding-sage/40 hover:border-wedding-sage text-wedding-brown font-medium py-3.5 px-6 rounded-lg transition shadow-sm flex items-center justify-center gap-2 group">
+        <div class="w-full flex justify-center pb-8">
+            <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Georgia+%26+Luke%27s+Wedding&dates=20280519T123000Z/20280520T000000Z&details=Save+the+date+for+our+wedding!+Formal+invitation+to+follow.&location=Dorfold+Hall,+Nantwich" target="_blank" class="w-full sm:w-auto bg-white border border-wedding-sage/40 hover:border-wedding-sage text-wedding-brown font-medium py-3.5 px-8 rounded-lg transition shadow-sm flex items-center justify-center gap-2 group">
                 <i data-lucide="calendar-plus" class="w-5 h-5 text-wedding-sage-dark group-hover:scale-110 transition-transform"></i>
                 <span>Add to Calendar</span>
             </a>
@@ -391,34 +393,6 @@
             document.getElementById("cd-hours").innerText = hours < 10 ? '0' + hours : hours;
             document.getElementById("cd-mins").innerText = minutes < 10 ? '0' + minutes : minutes;
         }, 1000);
-
-        // ==========================================
-        // SHARE LOGIC
-        // ==========================================
-        async function shareSaveTheDate() {
-            const btnText = document.getElementById('share-btn-text');
-            const originalText = btnText.innerText;
-            
-            // The data to share
-            const shareData = {
-                title: "Save the Date: Georgia & Luke's Wedding",
-                text: "Please save the date for our wedding! Friday, 19th May 2028 at Dorfold Hall.",
-                url: window.location.href // Automatically grabs the Github URL
-            };
-
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else {
-                    // Fallback for older browsers
-                    await navigator.clipboard.writeText(`${shareData.text}\n\nLink: ${shareData.url}`);
-                    btnText.innerText = "Link Copied!";
-                    setTimeout(() => { btnText.innerText = originalText; }, 3000);
-                }
-            } catch (err) {
-                if (err.name !== 'AbortError') console.error("Error sharing:", err);
-            }
-        }
     </script>
 </body>
 </html>
