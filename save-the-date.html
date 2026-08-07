@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save the Date | Georgia & Luke</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'wedding-beige': '#F7F5F0',
+                        'wedding-sage': '#A3B18A',
+                        'wedding-brown': '#5C4033',
+                        'wedding-sage-dark': '#588157',
+                        'wedding-light-brown': '#8B7355',
+                        'env-base': '#e6d8c3',
+                        'env-dark': '#d5c3a7',
+                        'env-flap': '#efe4d1',
+                        'env-front': '#dfcfb6'
+                    },
+                    fontFamily: {
+                        'serif': ['"Cormorant Garamond"', 'serif'],
+                        'sans': ['Lato', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #F7F5F0;
+            color: #5C4033;
+            overflow-x: hidden;
+        }
+
+        /* =========================================
+           ENVELOPE CSS ART & ANIMATION
+           ========================================= */
+        .envelope-container {
+            perspective: 1000px;
+        }
+        
+        .envelope {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            background: theme('colors.env-base');
+            box-shadow: 0 20px 40px rgba(92, 64, 51, 0.15);
+            margin: 0 auto;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .envelope:hover {
+            transform: translateY(-5px);
+        }
+
+        .flap {
+            position: absolute;
+            top: 0; left: 0;
+            width: 0; height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 130px solid theme('colors.env-flap');
+            transform-origin: top;
+            z-index: 4;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.05));
+        }
+        
+        .flap.open {
+            transform: rotateX(180deg);
+            z-index: 1; 
+        }
+
+        .envelope-front {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 0;
+            border-left: 160px solid theme('colors.env-front');
+            border-right: 160px solid theme('colors.env-front');
+            border-bottom: 110px solid theme('colors.env-dark');
+            border-top: 110px solid transparent;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .letter {
+            position: absolute;
+            top: 5px; left: 10px; right: 10px; bottom: 10px;
+            background: white;
+            z-index: 2;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        /* The mini version of the invite inside the envelope */
+        .letter-content {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top;
+            opacity: 0.8;
+        }
+
+        .letter.pull {
+            transform: translateY(-160px);
+        }
+
+        .wax-seal {
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-color: theme('colors.wedding-light-brown');
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 0 8px rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #F7F5F0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-style: italic;
+            transition: opacity 0.3s;
+        }
+
+        .wax-seal.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* =========================================
+           VIEW TRANSITIONS
+           ========================================= */
+        #intro-view {
+            transition: opacity 0.8s, transform 0.8s;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+        
+        #intro-view.fade-out {
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            pointer-events: none;
+        }
+
+        #card-view {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: opacity 1s 0.2s, transform 1s 0.2s;
+            pointer-events: none;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        #card-view.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-wedding-brown bg-wedding-beige m-0 min-h-screen relative">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: THE ENVELOPE -->
+    <!-- ========================================== -->
+    <main id="intro-view" class="w-full">
+        <div class="text-center mb-12">
+            <h1 class="font-serif text-3xl md:text-4xl text-wedding-brown mb-2 tracking-wide">You're Invited</h1>
+            <p class="text-wedding-light-brown font-light italic">Tap to open</p>
+        </div>
+
+        <div class="envelope-container" onclick="openEnvelope()">
+            <div class="envelope">
+                <div class="flap"></div>
+                <div class="wax-seal">G&L</div>
+                <div class="letter">
+                    <!-- A peek of the image inside the envelope -->
+                    <img src="image_0091de.png" alt="Save the date peek" class="letter-content" onerror="this.style.display='none'">
+                </div>
+                <div class="envelope-front"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: THE CARD & COUNTDOWN -->
+    <!-- ========================================== -->
+    <main id="card-view" class="hidden w-full max-w-lg mx-auto">
+        
+        <!-- The Save the Date Image -->
+        <div class="bg-white p-2 sm:p-3 shadow-2xl rounded-sm w-full mb-10">
+            <!-- IMPORTANT: Make sure image_0091de.png is uploaded to your Github alongside this file! -->
+            <img src="image_0091de.png" alt="Save the Date for Georgia and Luke" class="w-full h-auto object-contain border border-wedding-sage/10">
+        </div>
+
+        <!-- Countdown Timer -->
+        <div class="w-full bg-white/50 backdrop-blur-sm border border-wedding-sage/20 rounded-xl p-6 shadow-sm mb-8 text-center">
+            <h3 class="font-serif text-xl text-wedding-brown mb-4 border-b border-wedding-sage/20 pb-2">Counting down the days...</h3>
+            
+            <div id="countdown" class="flex justify-center gap-4 sm:gap-8 text-wedding-brown font-serif">
+                <div class="flex flex-col">
+                    <span id="cd-days" class="text-4xl sm:text-5xl font-semibold">00</span>
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-wedding-sage-dark mt-1">Days</span>
+                </div>
+                <div class="text-3xl sm:text-4xl font-light opacity-30 pt-1">:</div>
+                <div class="flex flex-col">
+                    <span id="cd-hours" class="text-4xl sm:text-5xl font-semibold">00</span>
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-wedding-sage-dark mt-1">Hours</span>
+                </div>
+                <div class="text-3xl sm:text-4xl font-light opacity-30 pt-1">:</div>
+                <div class="flex flex-col">
+                    <span id="cd-mins" class="text-4xl sm:text-5xl font-semibold">00</span>
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-wedding-sage-dark mt-1">Mins</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="w-full flex flex-col sm:flex-row gap-4 pb-8">
+            <button onclick="shareSaveTheDate()" class="flex-1 bg-wedding-sage hover:bg-wedding-sage-dark text-white font-medium py-3.5 px-6 rounded-lg transition shadow-md flex items-center justify-center gap-2 group">
+                <i data-lucide="share" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                <span id="share-btn-text">Share</span>
+            </button>
+
+            <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Georgia+%26+Luke%27s+Wedding&dates=20280519T123000Z/20280520T000000Z&details=Save+the+date+for+our+wedding!+Formal+invitation+to+follow.&location=Dorfold+Hall,+Nantwich" target="_blank" class="flex-1 bg-white border border-wedding-sage/40 hover:border-wedding-sage text-wedding-brown font-medium py-3.5 px-6 rounded-lg transition shadow-sm flex items-center justify-center gap-2 group">
+                <i data-lucide="calendar-plus" class="w-5 h-5 text-wedding-sage-dark group-hover:scale-110 transition-transform"></i>
+                <span>Add to Calendar</span>
+            </a>
+        </div>
+
+    </main>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // ==========================================
+        // ANIMATION LOGIC
+        // ==========================================
+        let isOpened = false;
+
+        function openEnvelope() {
+            if (isOpened) return;
+            isOpened = true;
+
+            const flap = document.querySelector('.flap');
+            const letter = document.querySelector('.letter');
+            const seal = document.querySelector('.wax-seal');
+            const introView = document.getElementById('intro-view');
+            const cardView = document.getElementById('card-view');
+
+            // 1. Break the seal
+            seal.classList.add('hide');
+            
+            // 2. Open flap
+            flap.classList.add('open');
+            
+            // 3. Pull letter up out of envelope
+            setTimeout(() => {
+                letter.classList.add('pull');
+            }, 200);
+
+            // 4. Fade out envelope view, fade in card view
+            setTimeout(() => {
+                introView.classList.add('fade-out');
+                
+                setTimeout(() => {
+                    introView.style.display = 'none';
+                    cardView.classList.remove('hidden');
+                    
+                    // Force browser repaint before adding show class
+                    void cardView.offsetWidth; 
+                    
+                    cardView.classList.add('show');
+                    
+                    // Trigger celebratory confetti once fully revealed!
+                    setTimeout(fireConfetti, 400);
+                    
+                }, 800); // Wait for fade out to complete
+            }, 1400); // Wait for letter to finish pulling out
+        }
+
+        function fireConfetti() {
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.1 },
+                colors: ['#A3B18A', '#588157', '#F7F5F0', '#8B7355', '#d5c3a7'],
+                disableForReducedMotion: true
+            });
+        }
+
+        // ==========================================
+        // COUNTDOWN TIMER LOGIC
+        // ==========================================
+        const weddingDate = new Date("May 19, 2028 13:30:00").getTime();
+        
+        setInterval(() => {
+            const now = new Date().getTime();
+            const distance = weddingDate - now;
+
+            if (distance < 0) {
+                document.getElementById("countdown").innerHTML = "<div class='text-2xl font-bold'>The big day is here!</div>";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+            document.getElementById("cd-days").innerText = days < 10 ? '0' + days : days;
+            document.getElementById("cd-hours").innerText = hours < 10 ? '0' + hours : hours;
+            document.getElementById("cd-mins").innerText = minutes < 10 ? '0' + minutes : minutes;
+        }, 1000);
+
+        // ==========================================
+        // SHARE LOGIC
+        // ==========================================
+        async function shareSaveTheDate() {
+            const btnText = document.getElementById('share-btn-text');
+            const originalText = btnText.innerText;
+            
+            // The data to share
+            const shareData = {
+                title: "Save the Date: Georgia & Luke's Wedding",
+                text: "Please save the date for our wedding! Friday, 19th May 2028 at Dorfold Hall.",
+                url: window.location.href // Automatically grabs the Github URL
+            };
+
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    // Fallback for older browsers
+                    await navigator.clipboard.writeText(`${shareData.text}\n\nLink: ${shareData.url}`);
+                    btnText.innerText = "Link Copied!";
+                    setTimeout(() => { btnText.innerText = originalText; }, 3000);
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') console.error("Error sharing:", err);
+            }
+        }
+    </script>
+</body>
+</html>
