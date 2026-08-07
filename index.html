@@ -1169,6 +1169,77 @@
             }
         };
 
+        // ==========================================
+        // PAN AND ZOOM LOGIC FOR SEATING PLAN
+        // ==========================================
+        let currentZoom = 1;
+        let isPanning = false;
+        let panStartX = 0, panStartY = 0;
+        let scrollLeftStart = 0, scrollTopStart = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvasContainer = document.getElementById('canvas-container');
+            const roomCanvas = document.getElementById('room-canvas');
+
+            if (canvasContainer && roomCanvas) {
+                // Zoom functionality (Mouse Wheel)
+                canvasContainer.addEventListener('wheel', (e) => {
+                    e.preventDefault(); // Prevent default page scroll
+                    
+                    const zoomAmount = e.deltaY * -0.001;
+                    let newZoom = currentZoom + zoomAmount;
+                    
+                    // Constrain zoom level between 0.3x and 2.5x
+                    newZoom = Math.min(Math.max(0.3, newZoom), 2.5);
+                    
+                    // Calculate mouse position relative to container for smooth zooming towards cursor
+                    const rect = canvasContainer.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    // Adjust scroll position
+                    const scrollX = canvasContainer.scrollLeft;
+                    const scrollY = canvasContainer.scrollTop;
+                    const ratio = newZoom / currentZoom;
+                    
+                    canvasContainer.scrollLeft = (scrollX + mouseX) * ratio - mouseX;
+                    canvasContainer.scrollTop = (scrollY + mouseY) * ratio - mouseY;
+                    
+                    currentZoom = newZoom;
+                    roomCanvas.style.transform = `scale(${currentZoom})`;
+                }, { passive: false });
+
+                // Pan functionality (Drag grid background)
+                canvasContainer.addEventListener('mousedown', (e) => {
+                    // Only pan if clicking on the background grid itself, not a table or guest
+                    if (e.target === canvasContainer || e.target === roomCanvas) {
+                        isPanning = true;
+                        panStartX = e.clientX;
+                        panStartY = e.clientY;
+                        scrollLeftStart = canvasContainer.scrollLeft;
+                        scrollTopStart = canvasContainer.scrollTop;
+                        canvasContainer.classList.remove('cursor-grab');
+                        canvasContainer.classList.add('cursor-grabbing');
+                    }
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isPanning) return;
+                    const dx = e.clientX - panStartX;
+                    const dy = e.clientY - panStartY;
+                    canvasContainer.scrollLeft = scrollLeftStart - dx;
+                    canvasContainer.scrollTop = scrollTopStart - dy;
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isPanning) {
+                        isPanning = false;
+                        canvasContainer.classList.add('cursor-grab');
+                        canvasContainer.classList.remove('cursor-grabbing');
+                    }
+                });
+            }
+        });
 
         let draggedGuestId = null;
 
